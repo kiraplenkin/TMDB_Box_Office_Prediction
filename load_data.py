@@ -68,4 +68,4 @@ def load():
             if i in test_dict[col]:
                 del test_dict[col][i]
 
-    return train, test, train_dict
+    return train, test, y, train_dict
