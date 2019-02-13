@@ -8,9 +8,9 @@ def prepare(df, train_dict):
     # global train_dict
     df['originalBudjet'] = np.log1p(df['budget'])
     df['budget'] = np.log1p(df['budget'])
-    # df['rating'] = df['rating'].fillna(1.5)
-    # df['totalVotes'] = df['totalVotes'].fillna(6)
-    # df['weightRaiting'] = (df['rating'] * df['totalVotes'] + 6.367 * 1000) / (df['totalVotes'] + 1000)
+    df['rating'] = df['rating'].fillna(1.5)
+    df['totalVotes'] = df['totalVotes'].fillna(6)
+    df['weightRaiting'] = (df['rating'] * df['totalVotes'] + 6.367 * 1000) / (df['totalVotes'] + 1000)
 
     df[['release_month', 'release_day', 'release_year']] = df['release_date'].str.split('/', expand=True).replace(
         np.nan, 0).astype(int)
@@ -26,20 +26,20 @@ def prepare(df, train_dict):
     df['_budget_year_ratio'] = df['budget'] / (df['release_year'] * df['release_year'])  # ?
     df['_releaseYear_popularity_ratio'] = df['release_year'] / df['popularity']
     df['_releaseYear_popularity_ratio2'] = df['popularity'] / df['release_year']
-    # df['_popularity_totalVotes_ratio'] = df['totalVotes'] / df['popularity']
-    # df['_rating_popularity_ratio'] = df['rating'] / df['popularity']
-    # df['_rating_totalVotes_ratio'] = df['totalVotes'] / df['rating']
-    # df['_totalVotes_releaseYear_ratio'] = df['totalVotes'] / df['release_year']
-    # df['_budget_rating_ratio'] = df['budget'] / df['rating']
-    # df['_runtime_rating_ratio'] = df['runtime'] / df['rating']
-    # df['_budget_totalVotes_ratio'] = df['budget'] / df['totalVotes']
+    df['_popularity_totalVotes_ratio'] = df['totalVotes'] / df['popularity']
+    df['_rating_popularity_ratio'] = df['rating'] / df['popularity']
+    df['_rating_totalVotes_ratio'] = df['totalVotes'] / df['rating']
+    df['_totalVotes_releaseYear_ratio'] = df['totalVotes'] / df['release_year']
+    df['_budget_rating_ratio'] = df['budget'] / df['rating']
+    df['_runtime_rating_ratio'] = df['runtime'] / df['rating']
+    df['_budget_totalVotes_ratio'] = df['budget'] / df['totalVotes']
 
     df['has_homepage'] = 0
     df.loc[pd.isnull(df['homepage']), 'has_homepage'] = 1
     df['isBelongs_to_collectionNA'] = 0
     df.loc[pd.isnull(df['belongs_to_collection']), 'isBelongs_to_collectionNA'] = 1
-    # df['isTaglineNA'] = 0
-    # df.loc[df['tagline'] == 0, "isTaglineNA"] = 1
+    df['isTaglineNA'] = 0
+    df.loc[df['tagline'] == 0, "isTaglineNA"] = 1
     df['isOriginalLanguageEng'] = 0
     df.loc[df['original_language'] == 'en', 'isOriginalLanguageEng'] = 1
     df['isTitleDifferent'] = 1
@@ -52,7 +52,7 @@ def prepare(df, train_dict):
     df['original_title_word_count'] = df['original_title'].str.split().str.len()
     df['title_word_count'] = df['title'].str.split().str.len()
     df['overview_word_count'] = df['overview'].str.split().str.len()
-    # df['tagline_word_count'] = df['tagline'].str.split().str.len()
+    df['tagline_word_count'] = df['tagline'].str.split().str.len()
     df['production_countries_count'] = df['production_countries'].apply(lambda x: len(x))
     df['production_companies_count'] = df['production_companies'].apply(lambda x: len(x))
     df['cast_count'] = df['cast'].apply(lambda x: len(x))
@@ -61,14 +61,12 @@ def prepare(df, train_dict):
     df['meanRuntimeByYear'] = df.groupby('release_year')['runtime'].aggregate('mean')
     df['meanPopularityByYear'] = df.groupby('release_year')['popularity'].aggregate('mean')
     df['meanBudgetByYear'] = df.groupby('release_year')['budget'].aggregate('mean')
-    # df['meanTotalVotesByYear'] = df.groupby('release_year')['totalVotes'].aggregate('mean')
-    # df['meanTotalVotesByRating'] = df.gropupby('rating')['totalVotes'].aggregate('mean')
+    df['meanTotalVotesByYear'] = df.groupby('release_year')['totalVotes'].aggregate('mean')
+    df['meanTotalVotesByRating'] = df.groupby('rating')['totalVotes'].aggregate('mean')
 
     for col in ['genres', 'production_countries', 'spoken_languages', 'production_companies']:
-        df[col] = df[col].map(lambda x: sorted(list(set([n if n in train_dict[col] else col + '_etc' for n in [d['name']
-                                                                                                               for d in
-                                                                                                               x]])))).map(
-            lambda x: ','.join(map(str, x)))
+        df[col] = df[col].map(lambda x: sorted(list(set([n if n in train_dict[col] else col + '_etc'
+                                                         for n in [d['name'] for d in x]])))).map(lambda x: ','.join(map(str, x)))
         temp = df[col].str.get_dummies(sep=',')
         df = pd.concat([df, temp], axis=1)
     df.drop(['genres_etc'], axis=1, inplace=True)
