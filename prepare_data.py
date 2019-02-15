@@ -54,7 +54,7 @@ def prepare(df, train_dict):
     df['overview_word_count'] = df['overview'].str.split().str.len()
     df['tagline_word_count'] = df['tagline'].str.split().str.len()
     df['production_countries_count'] = df['production_countries'].apply(lambda x: len(x))
-    df['production_companies_count'] = df['production_companies'].apply(lambda x: len(x))
+    # df['production_companies_count'] = df['production_companies'].apply(lambda x: len(x))
     df['cast_count'] = df['cast'].apply(lambda x: len(x))
     df['crew_count'] = df['crew'].apply(lambda x: len(x))
 
